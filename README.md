@@ -4,17 +4,17 @@ Under no circumstances will this client to anything except send and receive mail
 
 ## Architecture
 ### HTTP Client
-	- Creates a connection to a server
-	- returns a struct with session information (port and other stuff)
-	- allows to send messages
+- Creates a connection to a server
+- returns a struct with session information (port and other stuff)
+- allows to send messages
 ### POP3/IMAP Client
-	- Uses HTTP Client
-	- Retrieves Mail from server
-	- deploys Mails as files in a directory
+- Uses HTTP Client
+- Retrieves Mail from server
+- deploys Mails as files in a directory
 ### SMTP Client
-	- Takes text file as input
-	- adds headers such as recipient and sender
-	- Uses HTTP Client to send Mail to server
+- Takes text file as input
+- adds headers such as recipient and sender
+- Uses HTTP Client to send Mail to server
 
 ## Binaries
 Binaries need to go into the _/bin_ folder.
