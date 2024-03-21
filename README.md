@@ -7,6 +7,10 @@ Under no circumstances will this client to anything except send and receive mail
 - Creates a connection to a server
 - returns a struct with session information (port and other stuff)
 - allows to send messages
+# Functions
+1. Create Connection: Takes Target Address, Returns Connection Struct
+2. Send Message: Takes Connection Struct and Message, Returns Response
+3. Close Connection: Takes Connection Struct, Returns Success
 ### POP3/IMAP Client
 - Uses HTTP Client
 - Retrieves Mail from server
