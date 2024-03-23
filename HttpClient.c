@@ -5,30 +5,53 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <errno.h>
 
-int createConnection(int port, char *host)
+int createConnection(char *host)
 {
-	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	printf("%d\n", sockfd);
+	int sockfd;
+	
+	struct addrinfo hints = {0};
+	memset(&hints, 0, sizeof(hints));
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_DGRAM;
+	hints.ai_protocol = 0;
+	hints.ai_flags = 0;
 
-	struct hostent *server = gethostbyname(host);
-	if(server == NULL)
+	struct addrinfo *info = NULL;
+
+	int lookup_result = getaddrinfo(host, NULL, &hints, &info);
+
+	if(lookup_result < 0)
 	{
-		printf("ERROR: %s\n", hstrerror(h_errno));
+		printf("ERROR: %s\n", gai_strerror(lookup_result));
 	}
 
-	printf("ADDRESS: %s\n", server->h_addr);
-	printf("INT_ADDRESS: %d\n", atoi(server->h_addr));
 
-	struct sockaddr_in serv_addr = (struct sockaddr_in) {.sin_family = AF_INET,
-		.sin_port = htons(port),
-		.sin_addr.s_addr = atoi(server->h_addr)};
-	
-	printf("COPIED ADDRESS: %d\n", serv_addr.sin_addr.s_addr);
+	for(struct addrinfo *iter = info; iter != NULL; iter = iter->ai_next)
+	{
+		printf("ADDRESS: %s\n", info->ai_addr->sa_data);
+		printf("FAMILY: %d\n", info->ai_addr->sa_family);
+		printf("SIZE CHECK: %ld\n", sizeof(info->ai_addr));
 
-	int connectionResult = connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
 
-	printf("CONNECTION SUCCESS: %d\n", connectionResult);
+		sockfd = socket(iter->ai_family, iter->ai_socktype, iter->ai_protocol);
+		printf("SOCKET: %d\n", sockfd);
+		if(sockfd < 0)
+		{
+			continue;
+		}
+
+		int connectionResult = connect(sockfd, iter->ai_addr, iter->ai_addrlen);
+		
+		if(connectionResult == 0)
+		{
+			break;
+		}
+
+		int error_code = errno;
+		printf("CONNECTION ERROR: %d\n", error_code);
+	}
 	
 	close(sockfd);
 
@@ -37,7 +60,7 @@ int createConnection(int port, char *host)
 
 int main()
 {
-	createConnection(80, "catfact.ninja");
+	createConnection("www.google.com");
 
 	return 0;
 }
